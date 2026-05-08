@@ -1,10 +1,5 @@
-# Use Alpine as base image
 FROM alpine:3.21
 
-# Prevent interactive prompts and update repositories
-ENV MYSQL_ROOT_PASSWORD=root
-
-# Install MariaDB server and client
 RUN apk update && apk add --no-cache \
     mariadb mariadb-client bash \
     su-exec \
@@ -12,12 +7,13 @@ RUN apk update && apk add --no-cache \
     && mkdir -p /run/mysqld \
     && chown -R mysql:mysql /run/mysqld
 
-# Expose MariaDB default port
 EXPOSE 3306
 
-# Copy a simple entrypoint script
 COPY ./tools/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Default command
-CMD ["/entrypoint.sh"]
+COPY ./config/mariadb-server.cnf /etc/my.cnf.d
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+CMD ["mariadbd-safe", "--datadir=/var/lib/mysql"]
