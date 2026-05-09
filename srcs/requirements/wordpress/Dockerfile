@@ -13,3 +13,7 @@ RUN mkdir -p /var/www  && wget https://wordpress.org/latest.tar.gz \
 
 COPY ./config/wp-config.php /var/www/wordpress/wp-config.php
 
+EXPOSE 9000
+
+
+CMD ["php-fpm83", "-F"]
