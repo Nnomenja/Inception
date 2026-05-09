@@ -16,4 +16,4 @@ COPY ./config/mariadb-server.cnf /etc/my.cnf.d
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-CMD ["mariadbd-safe", "--datadir=/var/lib/mysql"]
+CMD ["mariadbd" ]

@@ -49,9 +49,18 @@ MYSQL_PID=$!
 # Wait until server is ready
 echo_warn "Waiting for MariaDB to be ready..."
 
-until mariadb-admin \
-    ping --silent; do
+TIMEOUT=30
+COUNTER=0
+
+until mariadb-admin ping --silent; do
+    if [ $COUNTER -ge $TIMEOUT ]; then
+        echo_error "Timeout waiting for MariaDB to start"
+        exit 1
+    fi
+    
+    echo -n "."
     sleep 1
+    COUNTER=$((COUNTER + 1))
 done
 
 echo_success "MariaDB started"
@@ -79,4 +88,4 @@ wait "$MYSQL_PID"
 
 echo_success "Starting MariaDB in foreground..."
 
-exec "$@"   
+exec "$@"  --datadir="$DATADIR" "--user=mysql"
