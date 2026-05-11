@@ -5,15 +5,20 @@ LABEL maintainer="mamenosoa42@gmail.com" \
       description="Custom WordPress image based on Alpine Linux"
 
 RUN apk update && \
-    apk add --no-cache php83 php83-fpm php83-mysqli php83-json php83-gd php83-curl php83-mbstring wget\
+    apk add --no-cache bash su-exec  curl php83 php83-fpm php83-mysqli php83-json php83-gd php83-curl php83-mbstring wget\
     && rm -rf /var/cache/apk/*
 
-RUN mkdir -p /var/www  && wget https://wordpress.org/latest.tar.gz \
-    && tar -xzvf latest.tar.gz -C /var/www && rm latest.tar.gz
+
+RUN mkdir -p /var/www/wordpress
 
 COPY ./config/wp-config.php /var/www/wordpress/wp-config.php
 
-EXPOSE 9000
+COPY ./tools/setup-wordpress.sh /setup-wordpress.sh
+RUN chmod +x /setup-wordpress.sh
 
+
+ENTRYPOINT ["/setup-wordpress.sh"]
+
+EXPOSE 9000
 
 CMD ["php-fpm83", "-F"]
