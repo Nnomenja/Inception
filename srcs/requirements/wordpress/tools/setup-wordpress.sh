@@ -2,7 +2,7 @@
 
 set -e
 
-TARGET="/var/www/wordpress/index.php"
+TARGET="/var/www/html/wordpress/index.php"
 
 echo "Checking for WordPress in $TARGET ..."
 
@@ -12,7 +12,7 @@ if [ ! -f "$TARGET" ]; then
 
     tar -xzf /tmp/wordpress.tar.gz -C /tmp
 
-    cp -r /tmp/wordpress /var/www/
+    cp -r /tmp/wordpress /var/www/html/
 else
     echo "WordPress already exists in $TARGET. Skipping download and extraction."
 fi

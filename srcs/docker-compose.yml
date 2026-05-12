@@ -18,6 +18,25 @@ services:
             - .env
         volumes:
             - mariadb_data:/var/lib/mysql
+    wordpress:
+        build:
+            context: ./requirements/wordpress
+            dockerfile: Dockerfile
+        image: wordpress
+        ports:
+            - "9000:9000"
+        environment:
+            # WORDPRESS_DB_HOST: mariadb:3306
+            WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+            WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+            WORDPRESS_DB_PASSWORD: /run/secrets/db_user_password
+        env_file:
+            - .env
+        depends_on:
+            - mariadb
+        volumes:
+            - wordpress_data:/var/www/html/wordpress
+
 secrets:
     db_root_password:
         file: ../secrets/db_root_password.txt
@@ -30,4 +49,12 @@ volumes:
         driver_opts:
             type: none
             device: /home/nnomenja/data/mysql
-            o: bind 
+            o: bind
+
+    wordpress_data:
+        driver: local
+        driver_opts:
+            type: none
+            device: /home/nnomenja/data/wordpress
+            o: bind
+    

@@ -9,9 +9,9 @@ RUN apk update && \
     && rm -rf /var/cache/apk/*
 
 
-RUN mkdir -p /var/www/wordpress
+RUN mkdir -p /var/www/html/wordpress
 
-COPY ./config/wp-config.php /var/www/wordpress/wp-config.php
+COPY ./config/wp-config.php /var/www/html/wordpress/wp-config.php
 
 COPY ./tools/setup-wordpress.sh /setup-wordpress.sh
 RUN chmod +x /setup-wordpress.sh
