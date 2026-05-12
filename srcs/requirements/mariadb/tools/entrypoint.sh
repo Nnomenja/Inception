@@ -27,10 +27,17 @@ echo_error() {
 
 DATADIR="/var/lib/mysql"
 
+
+if [ -d "${DATADIR}/mysql" ]; then
+    echo_success "DATADIR already initialized, running directly..."
+    exec "$@" --datadir="$DATADIR" --user=mysql
+fi
+
 # Initialize database if not exists
-if [ ! -d "/var/lib/mysql/mysql" ]; then
+if [ ! -d "${DATADIR}/mysql" ]; then
     echo_info "Initializing MariaDB data directory..."
-    mariadb-install-db --user=mysql --ldata=/var/lib/mysql
+    mariadb-install-db --user=mysql --ldata="${DATADIR}"
+
 fi
 
 # Require env vars
@@ -38,7 +45,7 @@ fi
 : "${MYSQL_USER_NAME:?Need MYSQL_USER_NAME}"
 : "${MYSQL_USER_PASSWORD:?Need MYSQL_USER_PASSWORD}"
 
-# Read from secret files if paths are provided
+#Read from secret files if paths are provided
 if [ -f "$MYSQL_ROOT_PASSWORD" ]; then
     echo_info "Reading MYSQL_ROOT_PASSWORD from file: $MYSQL_ROOT_PASSWORD"
     MYSQL_ROOT_PASSWORD=$(cat "$MYSQL_ROOT_PASSWORD" | tr -d '\n\r')
