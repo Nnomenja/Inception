@@ -4,6 +4,8 @@ LABEL maintainer="mamenosoa42@gmail.com" \
       version="1.0" \
       description="Custom Nginx image based on Alpine Linux"
 
+RUN echo "https://mirrors.edge.kernel.org/alpine/latest-stable/main" > /etc/apk/repositories
+
 RUN apk update && apk add --no-cache nginx openssl bash \
     && rm -rf /var/cache/apk/*
 

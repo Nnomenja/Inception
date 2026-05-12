@@ -1,5 +1,7 @@
 FROM alpine:3.21
 
+RUN echo "https://mirrors.edge.kernel.org/alpine/latest-stable/main" > /etc/apk/repositories
+
 RUN apk update && apk add --no-cache \
     mariadb mariadb-client bash \
     su-exec \
