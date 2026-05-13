@@ -12,18 +12,16 @@ make build:
 make up:
 	mkdir -p "$(HOST_MARIADB_DATA)"
 	mkdir -p "$(HOST_WORDPRESS_DATA)"
-	sudo docker compose -f ./srcs/docker-compose.yml up -d
+	sudo docker compose -f ./srcs/docker-compose.yml up --abort-on-container-exit
 
 make down:
 	sudo docker compose -f ./srcs/docker-compose.yml down
 
 make clean:
-	sudo docker compose -f ./srcs/docker-compose.yml down -v --rmi all
-	sudo rm -rf "$(HOST_MARIADB_DATA)/*"
-	sudo rm -rf "$(HOST_WORDPRESS_DATA)/*"
+	sudo rm -rf "$(HOST_DATA_DIR)"
 
 make fclean: clean
-	sudo rm -rf "$(HOST_DATA_DIR)"
+	sudo docker compose -f ./srcs/docker-compose.yml down -v --rmi all
 	sudo docker system prune -a --volumes -f
 
 make re: fclean all
