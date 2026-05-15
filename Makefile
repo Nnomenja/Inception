@@ -12,8 +12,7 @@ make build:
 make up:
 	mkdir -p "$(HOST_MARIADB_DATA)"
 	mkdir -p "$(HOST_WORDPRESS_DATA)"
-	sudo docker compose -f ./srcs/docker-compose.yml up --abort-on-container-exit
-
+	sudo docker compose -f ./srcs/docker-compose.yml up
 make down:
 	sudo docker compose -f ./srcs/docker-compose.yml down
 

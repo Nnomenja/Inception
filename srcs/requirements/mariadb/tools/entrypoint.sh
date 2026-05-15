@@ -44,6 +44,7 @@ fi
 : "${MYSQL_ROOT_PASSWORD:?Need MYSQL_ROOT_PASSWORD}"
 : "${MYSQL_USER_NAME:?Need MYSQL_USER_NAME}"
 : "${MYSQL_USER_PASSWORD:?Need MYSQL_USER_PASSWORD}"
+: "${MYSQL_DB:?Need MYSQL_DB}"
 
 #Read from secret files if paths are provided
 if [ -f "$MYSQL_ROOT_PASSWORD" ]; then
@@ -66,56 +67,24 @@ fi
 
 echo_success "All required environment variables validated and loaded"
 
-echo_info "Starting temporary MariaDB..."
+echo_info "Starting MariaDB in bootstrap mode..."
 
-mariadbd-safe \
-    --datadir="$DATADIR" \
-    --skip-networking &
-
-MYSQL_PID=$!
-
-# Wait until server is ready
-echo_warn "Waiting for MariaDB to be ready..."
-
-TIMEOUT=30
-COUNTER=0
-
-until mariadb-admin ping --silent; do
-    if [ $COUNTER -ge $TIMEOUT ]; then
-        echo_error "Timeout waiting for MariaDB to start"
-        exit 1
-    fi
-    
-    echo -n "."
-    sleep 1
-    COUNTER=$((COUNTER + 1))
-done
-
-echo_success "MariaDB started"
-
-echo_info "Setting up root and application user..."
-mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" << EOF
+mariadbd --bootstrap --datadir=/var/lib/mysql --user=mysql << EOF
+USE mysql;
+FLUSH PRIVILEGES;
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-DELETE FROM mysql.user WHERE User='';
-DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost');
-DROP DATABASE IF EXISTS test;
-DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+FLUSH PRIVILEGES;
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+CREATE USER IF NOT EXISTS '${MYSQL_USER_NAME}'@'%' IDENTIFIED BY '${MYSQL_USER_PASSWORD}';
+GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_USER_NAME}'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+CREATE DATABASE IF NOT EXISTS ${MYSQL_DB};
+GRANT ALL PRIVILEGES ON ${MYSQL_DB}.* TO '${MYSQL_USER_NAME}'@'%';
 FLUSH PRIVILEGES;
 EOF
-
-echo_success "Root user setup completed."
-mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e \
-"CREATE USER IF NOT EXISTS '${MYSQL_USER_NAME}'@'%' IDENTIFIED BY '${MYSQL_USER_PASSWORD}'; GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_USER_NAME}'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-
-mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e \
-"CREATE DATABASE IF NOT EXISTS ${MYSQL_DB}; GRANT ALL PRIVILEGES ON ${MYSQL_DB}.* TO '${MYSQL_USER_NAME}'@'%'; FLUSH PRIVILEGES;"
-
-echo_info "Stopping temporary MariaDB..."
-
-mariadb-admin  shutdown -u root -p"${MYSQL_ROOT_PASSWORD}"
-
-wait "$MYSQL_PID"
 
 echo_success "Starting MariaDB in foreground..."
 
 exec "$@"  --datadir="$DATADIR" "--user=mysql"
+
+# exec /bin/bash
