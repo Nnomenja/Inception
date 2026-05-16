@@ -41,8 +41,8 @@ services:
             - wp_user_password
             - redis_password
         depends_on:
-            - mariadb
             - redis
+            - mariadb
         volumes:
             - wordpress_data:/var/www/html/wordpress
         networks:
@@ -77,6 +77,29 @@ services:
         networks:
             - my_network
         restart: unless-stopped
+    
+    ftp-server:
+        container_name: ftp-server
+        build:
+            context: ./requirements/ftp-server
+            dockerfile: Dockerfile
+        image: ftp-server
+        networks:
+            - my_network
+        restart: unless-stopped
+        depends_on:
+            - wordpress
+        ports:
+            - "21:21"
+            - "30000-30009:30000-30009"
+        environment:
+            FTP_PASSWORD: /run/secrets/ftp_password
+        env_file:
+            - .env
+        volumes:
+            - wordpress_data:/srv/ftpfiles
+        secrets:
+            - ftp_password
 
 secrets:
     db_root_password:
@@ -89,9 +112,12 @@ secrets:
         file: ../secrets/wp_user_password.txt
     redis_password:
         file: ../secrets/redis_password.txt
+    ftp_password:
+        file: ../secrets/ftp_password.txt
 
 volumes:
     mariadb_data:
+        name: mariadb_data
         driver: local
         driver_opts:
             type: none
@@ -99,6 +125,7 @@ volumes:
             o: bind
 
     wordpress_data:
+        name: wordpress_data
         driver: local
         driver_opts:
             type: none
