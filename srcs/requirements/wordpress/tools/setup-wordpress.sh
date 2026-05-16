@@ -47,15 +47,12 @@ if [ ! -f "$WP_PATH"/wp-config.php ]; then
     --path="$WP_PATH"
 
     # set redis cache settings
-    echo "installing Redis cache plugin and configuring settings..."
-    wp plugin install redis-cache --activate --path="$WP_PATH" --allow-root
-    echo "Configuring Redis cache settings in wp-config.php..."
-    wp config set WP_CACHE true --raw --path="$WP_PATH" --allow-root
-    wp config set WP_REDIS_HOST "$REDIS_HOST" --path="$WP_PATH" --allow-root
-    wp config set WP_REDIS_PORT "$REDIS_PORT" --path="$WP_PATH" --allow-root
-    wp config set WP_REDIS_PASSWORD "$(cat ${REDIS_PASSWORD})" --path="$WP_PATH" --allow-root --raw --qui   et
+    wp plugin install redis-cache --activate --path="$WP_PATH" --allow-root --quiet
+    wp config set WP_CACHE true --raw --path="$WP_PATH" --allow-root --quiet
+    wp config set WP_REDIS_HOST "$REDIS_HOST" --path="$WP_PATH" --allow-root --quiet
+    wp config set WP_REDIS_PORT "6379" --path="$WP_PATH" --allow-root --quiet
+    wp config set WP_REDIS_PASSWORD "$(cat ${REDIS_PASSWORD})" --path="$WP_PATH" --allow-root --quiet
     echo "Redis cache settings configured in wp-config.php"
-    echo "Enabling Redis cache plugin..."
     wp redis enable --path="$WP_PATH" --allow-root
 
 
