@@ -18,8 +18,10 @@ make down:
 
 make clean:
 	sudo rm -rf "$(HOST_DATA_DIR)"
+	make build
 
-make fclean: clean
+make fclean: 
+	sudo rm -rf "$(HOST_DATA_DIR)"
 	sudo docker compose -f ./srcs/docker-compose.yml down -v --rmi all
 	sudo docker system prune -a --volumes -f
 
