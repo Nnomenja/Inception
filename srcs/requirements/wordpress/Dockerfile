@@ -7,7 +7,9 @@ LABEL maintainer="mamenosoa42@gmail.com" \
 
 
 RUN apk update && \
-    apk add --no-cache bash su-exec  curl php83 php83-fpm php83-mysqli php83-json php83-gd php83-curl php83-phar php83-mbstring php83-cli php83-tokenizer wget iputils mariadb-client\
+    apk add --no-cache bash su-exec  curl php83 php83-fpm php83-mysqli php83-json php83-gd \
+    php83-curl php83-phar php83-mbstring php83-cli php83-tokenizer wget iputils mariadb-client\
+    php83-session \
     && rm -rf /var/cache/apk/*
 RUN ln -s /usr/bin/php83 /usr/bin/php
 
