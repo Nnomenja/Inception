@@ -2,6 +2,7 @@ version: '3.9'
 
 services:
     mariadb:
+        container_name: mariadb
         build:
             context: ./requirements/mariadb
             dockerfile: Dockerfile
@@ -20,6 +21,7 @@ services:
             - my_network
         restart: unless-stopped
     wordpress:
+        container_name: wordpress
         build:
             context: ./requirements/wordpress
             dockerfile: Dockerfile
@@ -30,20 +32,24 @@ services:
             WORDPRESS_DB_NAME: ${MYSQL_DB}
             WORDPRESS_ADMIN_PASSWORD: /run/secrets/wp_admin_password
             WORDPRESS_USER_PASSWORD: /run/secrets/wp_user_password
+            REDIS_PASSWORD: /run/secrets/redis_password
         env_file:
             - .env
         secrets:
             - db_user_password
             - wp_admin_password
             - wp_user_password
+            - redis_password
         depends_on:
             - mariadb
+            - redis
         volumes:
             - wordpress_data:/var/www/html/wordpress
         networks:
             - my_network
         restart: unless-stopped
     nginx:
+        container_name: nginx
         build:
             context: ./requirements/nginx
             dockerfile: Dockerfile
@@ -57,6 +63,20 @@ services:
         networks:
             - my_network
         restart: unless-stopped
+    
+    redis:
+        container_name: redis
+        build:
+            context: ./requirements/redis
+            dockerfile: Dockerfile
+        image: redis
+        environment:
+            REDIS_PASSWORD: /run/secrets/redis_password
+        secrets:
+            - redis_password
+        networks:
+            - my_network
+        restart: unless-stopped
 
 secrets:
     db_root_password:
@@ -67,6 +87,8 @@ secrets:
         file: ../secrets/wp_admin_password.txt
     wp_user_password:
         file: ../secrets/wp_user_password.txt
+    redis_password:
+        file: ../secrets/redis_password.txt
 
 volumes:
     mariadb_data:

@@ -38,12 +38,27 @@ if [ ! -f "$WP_PATH"/wp-config.php ]; then
     --admin_user="$WORDPRESS_ADMIN_USER" --admin_password="$(cat ${WORDPRESS_ADMIN_PASSWORD})" \
     --admin_email="$WORDPRESS_ADMIN_EMAIL" --path="$WP_PATH" --allow-root
 
+    echo "WordPress installed successfully in $WP_PATH"
     # Create a subscriber user with credentials from secrets
     wp user create $WORDPRESS_USER $WORDPRESS_USER_EMAIL \
     --role=subscriber \
     --user_pass="$(cat ${WORDPRESS_USER_PASSWORD})" \
     --allow-root \
     --path="$WP_PATH"
+
+    # set redis cache settings
+    echo "installing Redis cache plugin and configuring settings..."
+    wp plugin install redis-cache --activate --path="$WP_PATH" --allow-root
+    echo "Configuring Redis cache settings in wp-config.php..."
+    wp config set WP_CACHE true --raw --path="$WP_PATH" --allow-root
+    wp config set WP_REDIS_HOST "$REDIS_HOST" --path="$WP_PATH" --allow-root
+    wp config set WP_REDIS_PORT "$REDIS_PORT" --path="$WP_PATH" --allow-root
+    wp config set WP_REDIS_PASSWORD "$(cat ${REDIS_PASSWORD})" --path="$WP_PATH" --allow-root --raw --qui   et
+    echo "Redis cache settings configured in wp-config.php"
+    echo "Enabling Redis cache plugin..."
+    wp redis enable --path="$WP_PATH" --allow-root
+
+
 else
     echo "WordPress already exists in $WP_PATH. Skipping download and extraction."
 fi
