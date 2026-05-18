@@ -14,8 +14,6 @@ if [ -f "$FTP_PASSWORD" ]; then
     FTP_PASSWORD=$(cat "$FTP_PASSWORD" | tr -d '\n\r')
 fi
 
-echo "pass: $FTP_PASSWORD $FTP_USER "
-
 if ! id "$FTP_USER" >/dev/null 2>&1; then
     adduser -D -h "$FTP_DIR" "$FTP_USER"
     echo "$FTP_USER:$FTP_PASSWORD" | chpasswd
