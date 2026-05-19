@@ -34,7 +34,7 @@ if [ ! -f "$WP_PATH"/wp-config.php ]; then
     --skip-check
 
     # Install WordPress with site details and admin credentials
-    wp core install --url="https://$DOMAIN_NAME" --title="$SITE_TITLE" \
+    wp core install --url="https://$WORDPRESS_DOMAIN_NAME" --title="$SITE_TITLE" \
     --admin_user="$WORDPRESS_ADMIN_USER" --admin_password="$(cat ${WORDPRESS_ADMIN_PASSWORD})" \
     --admin_email="$WORDPRESS_ADMIN_EMAIL" --path="$WP_PATH" --allow-root
 
@@ -52,9 +52,8 @@ if [ ! -f "$WP_PATH"/wp-config.php ]; then
     wp config set WP_REDIS_HOST "$REDIS_HOST" --path="$WP_PATH" --allow-root --quiet
     wp config set WP_REDIS_PORT "6379" --path="$WP_PATH" --allow-root --quiet
     wp config set WP_REDIS_PASSWORD "$(cat ${REDIS_PASSWORD})" --path="$WP_PATH" --allow-root --quiet
-    echo "Redis cache settings configured in wp-config.php"
     wp redis enable --path="$WP_PATH" --allow-root
-
+    
 
 else
     echo "WordPress already exists in $WP_PATH. Skipping download and extraction."
