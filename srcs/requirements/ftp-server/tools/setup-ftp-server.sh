@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 set -e
 
 CONFIG_PATH="/etc/vsftpd/vsftpd.conf"

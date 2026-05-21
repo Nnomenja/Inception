@@ -8,7 +8,6 @@ RUN apk update && \
     apk add --no-cache redis  bash \
     && rm -rf /var/cache/apk/*
 
-# RUN ["redis-server", "--protected-mode", "no", "--appendonly", "yes" ]
 COPY ./config/redis.conf /etc/redis.conf
 
 COPY ./tools/setup-redis.sh .
