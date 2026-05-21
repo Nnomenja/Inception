@@ -1,0 +1,158 @@
+# Developer Documentation
+
+This document explains how to set up, build, and run the project, as well as how to manage its data and containers.
+
+## Table of Contents
+1. [Prerequisites](#prerequisites)
+2. [Setup and Configuration](#setup-and-configuration)
+3. [Building and Launching the Project](#building-and-launching-the-project)
+4. [Managing Containers and Volumes](#managing-containers-and-volumes)
+5. [Project Data and Persistence](#project-data-and-persistence)
+
+---
+
+## Prerequisites
+
+Before starting, ensure the following software is installed:
+
+- **Docker**: [Installation instructions](https://docs.docker.com/get-docker/)
+- **Docker Compose**: [Installation instructions](https://docs.docker.com/compose/install/)
+- **Make**: Required to run predefined commands via the Makefile
+
+---
+
+## Setup and Configuration
+
+1. **Create secrets directory**  
+
+    ```bash
+   mkdir -p /secrets
+    ````
+
+2. **Add the following secret files in** `/secrets`:
+
+* `db_root_password.txt`
+* `db_user_password.txt`
+* `ftp_password.txt`
+* `redis_password.txt`
+* `wp_admin_password.txt`
+* `wp_user_password.txt`
+* `mysql_exporter_password.txt`
+
+3. **Copy example environment file**
+
+   ```bash
+   cp .env.example .env
+   ```
+
+4. **Update `.env` with your settings**
+
+   ```env
+   # Database settings
+   WORDPRESS_DB_NAME=wpuser
+   WORDPRESS_DB_HOST=mariadb
+   WORDPRESS_DB_PREFIX=wp_
+   MYSQL_USER_NAME=user
+   MYSQL_DB=wpuser
+   MYSQL_EXPORTER_USER=exporter
+
+   # WordPress site settings
+   SITE_TITLE="Inception WordPress"
+   WORDPRESS_ADMIN_USER="mamenosoa"
+   WORDPRESS_ADMIN_EMAIL="admin@example.com"
+   WORDPRESS_USER="my_user"
+   WORDPRESS_USER_EMAIL="user@example.com"
+   WORDPRESS_DOMAIN_NAME="nnomenja.42.fr"
+
+   # FTP server
+   FTP_USER="john"
+
+   # Redis cache settings
+   REDIS_HOST=redis
+   REDIS_PORT=6379
+   ```
+
+---
+
+## Building and Launching the Project
+
+Use the Makefile commands to manage the project:
+
+* **Build project**
+
+  ```bash
+  make build
+  ```
+* **Start containers**
+
+  ```bash
+  make up
+  ```
+* **Stop containers**
+
+  ```bash
+  make down
+  ```
+* **Clean persistent data**
+
+  ```bash
+  make clean
+  ```
+* **Remove all images, containers, volumes, networks**
+
+  ```bash
+  make fclean
+  ```
+
+    ***Note:** You can also run Docker Compose commands directly if needed:
+    >
+    > ```bash
+    > docker-compose up --build
+    > docker-compose down
+    > ```
+
+---
+
+## Managing Containers and Volumes
+
+* **List running containers**
+
+  ```bash
+  docker ps
+  ```
+* **Stop and remove containers**
+
+  ```bash
+  docker-compose down
+  ```
+* **List Docker volumes**
+
+  ```bash
+  docker volume ls
+  ```
+* **Remove a specific volume**
+
+  ```bash
+  docker volume rm <volume_name>
+  ```
+* **Remove all unused volumes**
+
+  ```bash
+  docker volume prune
+  ```
+
+---
+
+## Project Data and Persistence
+
+
+* The project uses **Docker volumes** for storage.
+* **Persistent storage path**: `/home/nnomenja/data`
+  This is where WordPress, database, and other project data are kept.
+* **Persistence behavior**:
+
+  * Data inside `/home/nnomenja/data` is **not deleted** when containers are stopped or restarted.
+  * Data **will be removed** only if you run commands that explicitly delete it, such as:
+
+    * `make clean` → cleans persistent data
+    * `make fclean` → removes all containers, images, volumes, and networks.
