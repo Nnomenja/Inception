@@ -1,4 +1,4 @@
-FROM alpine:3.18.3
+FROM alpine:3.22
 
 LABEL maintainer="mamenosoa42@gmail.com" \
       description="Custom FTP image based on Alpine Linux"

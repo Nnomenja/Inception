@@ -1,4 +1,4 @@
-FROM alpine:3.19
+FROM alpine:3.22
 
 LABEL maintainer="mamenosoa42@gmail.com" \
       version="1.0" \

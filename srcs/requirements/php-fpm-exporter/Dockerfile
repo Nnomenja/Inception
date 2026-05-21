@@ -1,4 +1,4 @@
-FROM alpine:3.20
+FROM alpine:3.22
 
 ARG EXPORTER_VERSION=2.2.0
 
