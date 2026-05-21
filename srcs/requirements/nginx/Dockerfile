@@ -10,7 +10,7 @@ RUN apk update && apk add --no-cache nginx openssl bash curl\
     && rm -rf /var/cache/apk/*
 
 COPY ./config/default.conf /etc/nginx/http.d/default.conf
-
+COPY ./assets /var/www/html/
 COPY ./tools/setup-ssl.sh .
 
 RUN chmod +x setup-ssl.sh && ./setup-ssl.sh && rm setup-ssl.sh
