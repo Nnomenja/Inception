@@ -1,0 +1,4 @@
+listen: ":9253"
+scrape_uri: "tcp://wordpress:9000/status"
+timeout: 5s
+fix_process_count: true

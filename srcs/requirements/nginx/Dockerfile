@@ -6,7 +6,7 @@ LABEL maintainer="mamenosoa42@gmail.com" \
 
 RUN echo "https://mirrors.edge.kernel.org/alpine/latest-stable/main" > /etc/apk/repositories
 
-RUN apk update && apk add --no-cache nginx openssl bash\
+RUN apk update && apk add --no-cache nginx openssl bash curl\
     && rm -rf /var/cache/apk/*
 
 COPY ./config/default.conf /etc/nginx/http.d/default.conf
@@ -15,6 +15,6 @@ COPY ./tools/setup-ssl.sh .
 
 RUN chmod +x setup-ssl.sh && ./setup-ssl.sh && rm setup-ssl.sh
 
-EXPOSE 443
+EXPOSE 443 8080
 
 CMD ["nginx", "-g", "daemon off;"]

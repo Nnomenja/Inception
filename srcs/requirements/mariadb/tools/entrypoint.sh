@@ -45,6 +45,8 @@ fi
 : "${MYSQL_USER_NAME:?Need MYSQL_USER_NAME}"
 : "${MYSQL_USER_PASSWORD:?Need MYSQL_USER_PASSWORD}"
 : "${MYSQL_DB:?Need MYSQL_DB}"
+: "${MYSQL_EXPORTER_PASSWORD:?Need MYSQL_EXPORTER_PASSWORD}"
+: "${MYSQL_EXPORTER_USER:?Need MYSQL_EXPORTER_USER}"
 
 #Read from secret files if paths are provided
 if [ -f "$MYSQL_ROOT_PASSWORD" ]; then
@@ -61,9 +63,17 @@ if [ -f "$MYSQL_USER_PASSWORD" ]; then
     echo_success "MYSQL_USER_PASSWORD loaded from file"
 fi
 
+if [ -f "$MYSQL_EXPORTER_PASSWORD" ]; then
+    echo_info "Reading MYSQL_EXPORTER_PASSWORD from file: $MYSQL_EXPORTER_PASSWORD"
+    MYSQL_EXPORTER_PASSWORD=$(cat "$MYSQL_EXPORTER_PASSWORD" | tr -d '\n\r')
+    [ -z "$MYSQL_EXPORTER_PASSWORD" ] && { echo_error "MYSQL_EXPORTER_PASSWORD file is empty"; exit 1; }
+    echo_success "MYSQL_EXPORTER_PASSWORD loaded from file"
+fi
+
 # Final validation - ensure passwords are not empty
 [ -z "$MYSQL_ROOT_PASSWORD" ] && { echo_error "MYSQL_ROOT_PASSWORD is empty"; exit 1; }
 [ -z "$MYSQL_USER_PASSWORD" ] && { echo_error "MYSQL_USER_PASSWORD is empty"; exit 1; }
+[ -z "$MYSQL_EXPORTER_PASSWORD" ] && { echo_error "MYSQL_EXPORTER_PASSWORD is empty"; exit 1; }
 
 echo_success "All required environment variables validated and loaded"
 
@@ -80,6 +90,9 @@ GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_USER_NAME}'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 CREATE DATABASE IF NOT EXISTS ${MYSQL_DB};
 GRANT ALL PRIVILEGES ON ${MYSQL_DB}.* TO '${MYSQL_USER_NAME}'@'%';
+FLUSH PRIVILEGES;
+CREATE USER IF NOT EXISTS '${MYSQL_EXPORTER_USER}'@'%' IDENTIFIED BY '${MYSQL_EXPORTER_PASSWORD}';
+GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_EXPORTER_USER}'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 EOF
 

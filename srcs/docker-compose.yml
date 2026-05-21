@@ -10,9 +10,11 @@ services:
         secrets:
             - db_root_password
             - db_user_password
+            - mysql_exporter_password
         environment:
             MYSQL_ROOT_PASSWORD: /run/secrets/db_root_password  
             MYSQL_USER_PASSWORD: /run/secrets/db_user_password
+            MYSQL_EXPORTER_PASSWORD: /run/secrets/mysql_exporter_password
         env_file:
             - .env
         volumes:
@@ -100,6 +102,64 @@ services:
             - wordpress_data:/srv/ftpfiles
         secrets:
             - ftp_password
+    prometheus:
+        container_name: prometheus
+        build:
+            context: ./requirements/prometheus
+            dockerfile: Dockerfile
+        image: prometheus
+        networks:
+            - my_network
+        restart: unless-stopped
+        depends_on:
+            - wordpress
+        ports:
+           - 9090:9090
+        env_file:
+            - .env
+
+    # EXPORTERS
+    nginx-prometheus-exporter:
+        container_name: nginx-prometheus-exporter
+        build:
+            context: ./requirements/nginx-prometheus-exporter
+            dockerfile: Dockerfile
+        image: nginx-prometheus-exporter
+        networks:
+            - my_network
+        depends_on:
+            - nginx
+        restart: unless-stopped
+    
+    mysqld_exporter:
+        container_name: mysqld_exporter
+        build:
+            context: ./requirements/mysqld_exporter
+            dockerfile: Dockerfile
+        image: mysqld_exporter
+        networks:
+            - my_network
+        depends_on:
+            - mariadb
+        environment:
+            MYSQL_EXPORTER_PASSWORD: /run/secrets/mysql_exporter_password
+        env_file:
+            - .env
+        restart: unless-stopped
+        secrets:
+            - mysql_exporter_password
+    
+    php-fpm-exporter:
+        container_name: php-fpm-exporter
+        build:
+            context: ./requirements/php-fpm-exporter
+            dockerfile: Dockerfile
+        image: php-fpm-exporter
+        networks:
+            - my_network
+        depends_on:
+            - wordpress
+        restart: unless-stopped
 
 secrets:
     db_root_password:
@@ -114,6 +174,8 @@ secrets:
         file: ../secrets/redis_password.txt
     ftp_password:
         file: ../secrets/ftp_password.txt
+    mysql_exporter_password:
+        file: ../secrets/mysql_exporter_password.txt
 
 volumes:
     mariadb_data:
