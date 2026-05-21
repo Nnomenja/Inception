@@ -10,7 +10,6 @@ RUN apk update && \
     php83-curl php83-phar php83-mbstring php83-cli php83-tokenizer wget mariadb-client php83-pecl-redis php83-ctype \
     php83-session \
     && rm -rf /var/cache/apk/*
-RUN ln -s /usr/bin/php83 /usr/bin/php
 
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && chmod +x wp-cli.phar && mv wp-cli.phar /usr/local/bin/wp
 
